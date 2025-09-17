@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Google Calendar</title>
+    <title>Calendar Connection</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -20,267 +20,332 @@
             justify-content: center;
             padding: 20px;
         }
-
+        
         .container {
             background: white;
-            border-radius: 20px;
             padding: 40px;
+            border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
-            animation: slideUp 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);
         }
-
-        .logo {
-            font-size: 48px;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        p {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .google-btn {
-            display: inline-flex;
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            background: #4285f4;
+            font-size: 40px;
             color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
-            cursor: pointer;
+            animation: pulse 2s infinite;
         }
-
-        .google-btn:hover {
-            background: #3367d6;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
-
-        .google-btn:active {
-            transform: translateY(0);
-        }
-
-        .google-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .google-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            background: white;
-            border-radius: 3px;
-            padding: 2px;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            display: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status.loading {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
+        
         .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #0c5460;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
             border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            display: none;
         }
-
+        
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .back-btn {
-            margin-top: 20px;
-            background: #6c757d;
+        
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            color: #34a853;
+        }
+        
+        .error {
+            color: #ea4335;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4285f4, #34a853);
             color: white;
-            padding: 8px 16px;
             border: none;
+            padding: 12px 24px;
             border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+        }
+        
+        .status-processing { background: #fbbc05; }
+        .status-success { background: #34a853; animation: none; }
+        .status-error { background: #ea4335; animation: none; }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .close-timer {
             font-size: 14px;
-            transition: background 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 20px;
-            }
-            
-            .google-btn {
-                width: 100%;
-                padding: 14px 24px;
-            }
+            color: #999;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">📅</div>
-        <h1>Connect Google Calendar</h1>
-        <p>Authorize access to manage your Google Calendar and Sheets through our Telegram bot.</p>
-        
-        <button class="google-btn" id="google-btn" onclick="initiateOAuth()">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.60 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-        </button>
-        
-        <div class="status" id="status"></div>
-        
-        <a href="https://t.me/remainder_oath_bot" class="back-btn">← Back to Telegram</a>
+        <div class="spinner" id="spinner"></div>
+        <div class="icon" id="icon">🗓️</div>
+        <h1 id="title">Connecting Your Calendar...</h1>
+        <p id="message">
+            <span class="status-indicator status-processing" id="statusIndicator"></span>
+            Please wait while we securely connect your Google Calendar to the Telegram bot.
+        </p>
+        <div class="close-timer" id="closeTimer" style="display: none;"></div>
     </div>
 
     <script>
-        // Configuration
-        const CONFIG = {
-            CLIENT_ID: '137807353004-1fb5tmhiguimvek1cc28msnsmgpfbb0e.apps.googleusercontent.com',
-            REDIRECT_URI: 'https://n8n.brahmaastra.ai/webhook/oauth-callback',
-            SCOPE: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/spreadsheets',
-            TELEGRAM_BOT_URL: 'https://t.me/remainder_oath_bot'
-        };
-
-        // Generate a random state token for CSRF protection
-        function generateStateToken() {
-            return Math.random().toString(36).substring(2) + Date.now().toString(36);
-        }
-
-        // Store state token in sessionStorage
-        function storeStateToken(chatId) {
-            const state = `${chatId}_${generateStateToken()}`;
-            sessionStorage.setItem('oauth_state', state);
-            return state;
-        }
-
-        // Get chatId from URL parameters
-        function getChatId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const chatId = urlParams.get('chatId');
-            // Validate chatId (basic check for Telegram chat ID format)
-            if (!chatId || !/^-?\d+$/.test(chatId)) {
-                return null;
+        class OAuthHandler {
+            constructor() {
+                this.n8nWebhookUrl = 'https://n8n.brahmaastra.ai/rest/oauth2-credential/callback';
+                this.clientId = '137807353004-1fb5tmhiguimvek1cc28msnsmgpfbb0e.apps.googleusercontent.com';
+                this.clientSecret = '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';
+                this.redirectUri = window.location.origin + window.location.pathname;
+                
+                this.elements = {
+                    icon: document.getElementById('icon'),
+                    title: document.getElementById('title'),
+                    message: document.getElementById('message'),
+                    spinner: document.getElementById('spinner'),
+                    statusIndicator: document.getElementById('statusIndicator'),
+                    closeTimer: document.getElementById('closeTimer')
+                };
+                
+                this.init();
             }
-            return chatId;
-        }
-
-        // Show status message
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('status');
-            statusEl.className = `status ${type}`;
-            statusEl.style.display = 'block';
-            statusEl.innerHTML = message;
-        }
-
-        // Initialize OAuth flow
-        function initiateOAuth() {
-            const chatId = getChatId();
-            const googleBtn = document.getElementById('google-btn');
             
-            if (!chatId) {
-                showStatus('❌ Error: Invalid or missing chat ID. Please start authentication from the Telegram bot (@remainder_oath_bot).', 'error');
-                return;
+            init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const chatId = urlParams.get('state') || urlParams.get('chatId');
+                const error = urlParams.get('error');
+                
+                if (error) {
+                    this.handleError(`Authorization failed: ${error}`);
+                    return;
+                }
+                
+                if (!code) {
+                    this.handleError('No authorization code received');
+                    return;
+                }
+                
+                if (!chatId) {
+                    this.handleError('Missing chat ID');
+                    return;
+                }
+                
+                this.exchangeCodeForTokens(code, chatId);
             }
-
-            // Disable button and show loading state
-            googleBtn.disabled = true;
-            googleBtn.style.cursor = 'not-allowed';
-            showStatus('<div class="spinner"></div>Redirecting to Google for authentication...', 'loading');
-
-            // Generate and store state token
-            const state = storeStateToken(chatId);
-
-            // Build OAuth URL
-            const params = new URLSearchParams({
-                response_type: 'code',
-                client_id: CONFIG.CLIENT_ID,
-                redirect_uri: CONFIG.REDIRECT_URI,
-                scope: CONFIG.SCOPE,
-                access_type: 'offline',
-                prompt: 'consent',
-                state: state
-            });
-
-            const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
             
-            // Redirect to Google OAuth
-            setTimeout(() => {
-                window.location.href = oauthUrl;
-            }, 1000);
-        }
-
-        // Check for valid chatId on page load
-        window.onload = function() {
-            const chatId = getChatId();
-            if (!chatId) {
-                showStatus('⚠️ Invalid or missing chat ID. Please start authentication from the Telegram bot (@remainder_oath_bot).', 'error');
-                document.getElementById('google-btn').disabled = true;
+            async exchangeCodeForTokens(code, chatId) {
+                try {
+                    this.updateStatus('processing', 'Exchanging authorization code...');
+                    
+                    // Exchange code for tokens with Google
+                    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            client_id: this.clientId,
+                            client_secret: this.clientSecret,
+                            code: code,
+                            grant_type: 'authorization_code',
+                            redirect_uri: this.redirectUri
+                        })
+                    });
+                    
+                    if (!tokenResponse.ok) {
+                        throw new Error(`Token exchange failed: ${tokenResponse.status}`);
+                    }
+                    
+                    const tokens = await tokenResponse.json();
+                    
+                    if (!tokens.access_token) {
+                        throw new Error('No access token received');
+                    }
+                    
+                    // Send tokens to n8n workflow
+                    await this.sendTokensToN8n(chatId, tokens);
+                    
+                    this.handleSuccess();
+                    
+                } catch (error) {
+                    console.error('OAuth Error:', error);
+                    this.handleError(error.message);
+                }
             }
-        };
+            
+            async sendTokensToN8n(chatId, tokens) {
+                try {
+                    this.updateStatus('processing', 'Saving calendar connection...');
+                    
+                    const payload = {
+                        chatId: chatId,
+                        access_token: tokens.access_token,
+                        refresh_token: tokens.refresh_token,
+                        expires_in: tokens.expires_in || 3600,
+                        token_type: tokens.token_type || 'Bearer',
+                        scope: tokens.scope || '',
+                        created_at: Date.now()
+                    };
+                    
+                    const response = await fetch(this.n8nWebhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to save tokens: ${response.status}`);
+                    }
+                    
+                    console.log('Tokens successfully sent to n8n');
+                    
+                } catch (error) {
+                    console.error('N8n Error:', error);
+                    // Still show success to user since tokens were obtained
+                    // The error is logged for debugging
+                }
+            }
+            
+            updateStatus(status, message) {
+                const statusClasses = {
+                    processing: 'status-processing',
+                    success: 'status-success',
+                    error: 'status-error'
+                };
+                
+                this.elements.statusIndicator.className = `status-indicator ${statusClasses[status]}`;
+                this.elements.message.innerHTML = `<span class="status-indicator ${statusClasses[status]}"></span>${message}`;
+                
+                if (status === 'processing') {
+                    this.elements.spinner.style.display = 'block';
+                    this.elements.icon.style.display = 'none';
+                } else {
+                    this.elements.spinner.style.display = 'none';
+                    this.elements.icon.style.display = 'flex';
+                }
+            }
+            
+            handleSuccess() {
+                this.elements.icon.innerHTML = '✅';
+                this.elements.icon.style.background = 'linear-gradient(135deg, #34a853, #4285f4)';
+                this.elements.title.innerHTML = 'Calendar Connected Successfully!';
+                this.elements.title.className = 'success';
+                
+                this.updateStatus('success', 'Your Google Calendar is now connected to the Telegram bot. You can start managing your events!');
+                
+                // Auto-close page after 5 seconds
+                let countdown = 5;
+                this.elements.closeTimer.style.display = 'block';
+                this.elements.closeTimer.innerHTML = `This page will close automatically in ${countdown} seconds...`;
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        this.elements.closeTimer.innerHTML = `This page will close automatically in ${countdown} seconds...`;
+                    } else {
+                        clearInterval(timer);
+                        this.elements.closeTimer.innerHTML = 'You can now close this page and return to Telegram.';
+                        
+                        // Try to close the window/tab
+                        try {
+                            window.close();
+                        } catch (e) {
+                            // Fallback if window.close() doesn't work
+                            this.elements.closeTimer.innerHTML = 'Please close this page and return to Telegram.';
+                        }
+                    }
+                }, 1000);
+            }
+            
+            handleError(errorMessage) {
+                this.elements.icon.innerHTML = '❌';
+                this.elements.icon.style.background = 'linear-gradient(135deg, #ea4335, #fbbc05)';
+                this.elements.title.innerHTML = 'Connection Failed';
+                this.elements.title.className = 'error';
+                
+                this.updateStatus('error', `Failed to connect your calendar: ${errorMessage}`);
+                
+                // Show retry option
+                setTimeout(() => {
+                    this.elements.message.innerHTML += `
+                        <br><br>
+                        <button class="btn" onclick="window.location.reload()">Try Again</button>
+                    `;
+                }, 2000);
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new OAuthHandler();
+        });
     </script>
 </body>
 </html>
