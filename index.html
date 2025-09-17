@@ -93,6 +93,12 @@
             transform: translateY(0);
         }
 
+        .google-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .google-icon {
             width: 20px;
             height: 20px;
@@ -108,12 +114,6 @@
             border-radius: 10px;
             display: none;
             transition: opacity 0.3s ease;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .status.error {
@@ -181,7 +181,7 @@
         <h1>Connect Google Calendar</h1>
         <p>Authorize access to manage your Google Calendar and Sheets through our Telegram bot.</p>
         
-        <button class="google-btn" onclick="initiateOAuth()">
+        <button class="google-btn" id="google-btn" onclick="initiateOAuth()">
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -217,16 +217,10 @@
             return state;
         }
 
-        // Validate state token
-        function validateStateToken(state) {
-            const storedState = sessionStorage.getItem('oauth_state');
-            return state && storedState && state === storedState;
-        }
-
         // Get chatId from URL parameters
         function getChatId() {
             const urlParams = new URLSearchParams(window.location.search);
-            const chatId = urlParams.get('chatId') || urlParams.get('state');
+            const chatId = urlParams.get('chatId');
             // Validate chatId (basic check for Telegram chat ID format)
             if (!chatId || !/^-?\d+$/.test(chatId)) {
                 return null;
@@ -245,13 +239,17 @@
         // Initialize OAuth flow
         function initiateOAuth() {
             const chatId = getChatId();
+            const googleBtn = document.getElementById('google-btn');
             
             if (!chatId) {
-                showStatus('❌ Error: Invalid or missing chat ID. Please start from the Telegram bot.', 'error');
+                showStatus('❌ Error: Invalid or missing chat ID. Please start authentication from the Telegram bot (@remainder_oath_bot).', 'error');
                 return;
             }
 
-            showStatus('<div class="spinner"></div>Redirecting to Google...', 'loading');
+            // Disable button and show loading state
+            googleBtn.disabled = true;
+            googleBtn.style.cursor = 'not-allowed';
+            showStatus('<div class="spinner"></div>Redirecting to Google for authentication...', 'loading');
 
             // Generate and store state token
             const state = storeStateToken(chatId);
@@ -275,65 +273,12 @@
             }, 1000);
         }
 
-        // Handle OAuth callback
-        function handleCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const error = urlParams.get('error');
-            const state = urlParams.get('state');
-
-            if (error) {
-                let errorMessage = '❌ Authentication failed.';
-                if (error === 'access_denied') {
-                    errorMessage += ' You denied access to your Google account.';
-                } else if (error === 'invalid_request') {
-                    errorMessage += ' Invalid request. Please try again.';
-                } else {
-                    errorMessage += ` Error: ${error}`;
-                }
-                showStatus(errorMessage, 'error');
-                return;
-            }
-
-            if (code && state) {
-                if (!validateStateToken(state)) {
-                    showStatus('❌ Invalid state token. Please try again from the Telegram bot.', 'error');
-                    return;
-                }
-
-                showStatus('✅ Successfully connected! Returning to Telegram...', 'success');
-                
-                // Rely on n8n workflow to handle the code (no need to fetch here)
-                setTimeout(() => {
-                    try {
-                        window.close();
-                    } catch (e) {
-                        // Fallback if window.close fails
-                        window.location.href = CONFIG.TELEGRAM_BOT_URL;
-                    }
-                }, 3000);
-            }
-        }
-
-        // Check if this is a callback or initial load
+        // Check for valid chatId on page load
         window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            
-            if (code) {
-                handleCallback();
-            } else {
-                const chatId = getChatId();
-                if (!chatId) {
-                    showStatus('⚠️ Please start authentication from your Telegram bot.', 'error');
-                }
-            }
-        };
-
-        // Handle browser back button
-        window.onpopstate = function(event) {
-            if (event.state && event.state.step === 'oauth') {
-                handleCallback();
+            const chatId = getChatId();
+            if (!chatId) {
+                showStatus('⚠️ Invalid or missing chat ID. Please start authentication from the Telegram bot (@remainder_oath_bot).', 'error');
+                document.getElementById('google-btn').disabled = true;
             }
         };
     </script>
