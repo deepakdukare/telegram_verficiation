@@ -1,24 +1,70 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Google OAuth + Sheets</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login with Google</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f4f8;
+      margin: 0;
+    }
+    .login-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    a.button {
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #4285F4;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    a.button:hover {
+      background-color: #3367D6;
+    }
+  </style>
 </head>
 <body>
-  <h1>Login with Google</h1>
-  <a id="login" href="#">Login with Google</a>
+
+  <div class="login-container">
+    <h1>Sign in with Google</h1>
+    <a id="google-login" class="button" href="#">Sign in</a>
+  </div>
 
   <script>
-    const clientId = "137807353004-1fb5tmhiguimvek1cc28msnsmgpfbb0e.apps.googleusercontent.com"; // Replace with your Netlify env value during build
-    const redirectUri = window.location.origin + "/.netlify/functions/callback";
-    const scope = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email";
+    // Replace these with your actual Google OAuth details
+    const clientId = "YOUR_GOOGLE_CLIENT_ID";
+    const redirectUri = "https://n8n.brahmaastra.ai/webhook/oauth-callback";
+    const scope = "https://www.googleapis.com/auth/calendar.events";
 
-    document.getElementById("login").addEventListener("click", () => {
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
-      window.location.href = authUrl;
-    });
+    // Telegram chat ID of the user (can be dynamically set)
+    const telegramChatId = "USER_TELEGRAM_CHAT_ID";
+
+    // Use Telegram chat ID as state
+    const state = telegramChatId;
+
+    // Construct Google OAuth URL
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&access_type=offline&prompt=consent`;
+
+    // Set href of login button
+    document.getElementById("google-login").href = authUrl;
   </script>
+
 </body>
 </html>
