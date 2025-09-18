@@ -5,39 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login with Google</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f0f4f8;
-      margin: 0;
-    }
-    .login-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-    a.button {
-      display: inline-block;
-      padding: 12px 25px;
-      font-size: 16px;
-      color: #fff;
-      background-color: #4285F4;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-    a.button:hover {
-      background-color: #3367D6;
-    }
+    body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f4f8; margin: 0; }
+    .login-container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+    h1 { margin-bottom: 20px; color: #333; }
+    a.button { display: inline-block; padding: 12px 25px; font-size: 16px; color: #fff; background-color: #4285F4; border-radius: 6px; text-decoration: none; transition: background 0.3s; }
+    a.button:hover { background-color: #3367D6; }
   </style>
 </head>
 <body>
@@ -48,19 +20,14 @@
   </div>
 
   <script>
-    // Your Google OAuth credentials
     const clientId = "137807353004-1fb5tmhiguimvek1cc28msnsmgpfbb0e.apps.googleusercontent.com";
-    const redirectUri = "https://roaring-moxie-9f97cc.netlify.app/.netlify/functions/oauth-callback"; // Netlify function
+    const redirectUri = "https://roaring-moxie-9f97cc.netlify.app/.netlify/functions/oauth-callback"; 
     const scope = "https://www.googleapis.com/auth/calendar.events";
-
-    // Dynamically set per user (optional)
-    const telegramChatId = "USER_TELEGRAM_CHAT_ID"; 
+    const telegramChatId = "USER_TELEGRAM_CHAT_ID"; // dynamically set per user
     const state = telegramChatId;
 
-    // Construct the Google OAuth URL
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&access_type=offline&prompt=consent`;
 
-    // Set login button href
     document.getElementById("google-login").href = authUrl;
   </script>
 
