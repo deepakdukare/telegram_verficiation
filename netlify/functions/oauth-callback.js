@@ -1,7 +1,9 @@
 // netlify/functions/oauth-callback.js
 import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
 
-export async function handler(event, context) {
+export async function handler(event) {
   const { code } = event.queryStringParameters;
 
   if (!code) {
@@ -11,12 +13,10 @@ export async function handler(event, context) {
     };
   }
 
-  // Google OAuth token endpoint
   const tokenUrl = 'https://oauth2.googleapis.com/token';
-
-  const clientId = '137807353004-1fb5tmhiguimvek1cc28msnsmgpfbb0e.apps.googleusercontent.com';
-  const clientSecret = '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';
-  const redirectUri = 'https://roaring-moxie-9f97cc.netlify.app/.netlify/functions/oauth-callback';
+  const clientId = process.env.CLIENT_ID;
+  const clientSecret = process.env.CLIENT_SECRET;
+  const redirectUri = process.env.REDIRECT_URI || 'https://roaring-moxie-9f97cc.netlify.app/.netlify/functions/oauth-callback';
 
   try {
     // Exchange authorization code for tokens
@@ -41,22 +41,18 @@ export async function handler(event, context) {
       };
     }
 
-    // Here you can save tokens in your database if needed
+    // ✅ Load index.html from public folder (if you want to keep it as a file)
+    const filePath = path.join(process.cwd(), 'public', 'index.html');
+    let html = `<h2>✅ Authentication Successful!</h2><p>You can close this page now.</p>`; // fallback
 
-    // Show success page to the user
+    if (fs.existsSync(filePath)) {
+      html = fs.readFileSync(filePath, 'utf-8');
+    }
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/html' },
-      body: `
-        <html>
-          <head><title>Login Successful</title></head>
-          <body style="font-family: Arial; text-align:center; padding-top:50px;">
-            <h1>✅ Login Successful!</h1>
-            <p>You can now close this window.</p>
-            <pre>${JSON.stringify(tokens, null, 2)}</pre>
-          </body>
-        </html>
-      `,
+      body: html,
     };
   } catch (error) {
     return {
